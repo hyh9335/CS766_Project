@@ -58,8 +58,11 @@ class SRDataset(Dataset):
             Generate the images.
             img_type: can be "edge", "hr", "lr2x", "lr4x", "lr8x"
         """
+        
+
         from skimage.transform import resize, rescale
         from skimage.io import imread, imsave
+        from skimage import img_as_ubyte
 
         size = 512
         if img_type.startswith("lr"):
@@ -71,12 +74,13 @@ class SRDataset(Dataset):
                 downscale = 8
             else:
                 raise NotImplementedError
+            os.makedirs(os.path.join(self.img_dir, img_type), exist_ok=True)
             raise NotImplementedError
 
         elif img_type == "edge":
             from skimage.feature import canny
-            from skimage import img_as_ubyte
             from skimage.color import rgb2gray
+            os.makedirs(os.path.join(self.img_dir, img_type), exist_ok=True)
             for img_name in self.img_list["filename"]:
                 img_path = os.path.join(self.img_dir, "img", img_name)
                 img = imread(img_path)
@@ -90,12 +94,14 @@ class SRDataset(Dataset):
                 imsave(edge_path, edge_img)
 
         elif img_type == "hr":
+            os.makedirs(os.path.join(self.img_dir, img_type), exist_ok=True)
             for img_name in self.img_list["filename"]:
                 img_path = os.path.join(self.img_dir, "img", img_name)
                 img = imread(img_path)
 
                 if img.shape != (size, size, 3):
                     img = resize(img, (size, size), anti_aliasing=True)
-
+                
+                img = img_as_ubyte(img)
                 hr_path = os.path.join(self.img_dir, "hr", img_name)
                 imsave(hr_path, img)
