@@ -21,7 +21,7 @@ class SRDataset(Dataset):
             Note: These images should be generated before use. Check `generate_image()` for details
         Each line in files.csv correspond to a file in `img/`
     """
-    def __init__(self, img_dir, img_type="img", augment=False):
+    def __init__(self, img_dir, img_type="img", img_list="files.csv", augment=False):
         """
             img_dir: the directory of images
             img_type: which type of image to use, 
@@ -29,10 +29,13 @@ class SRDataset(Dataset):
                     or a can be list of them
                     for example, ["hr", "edge"] will give two images
                 default is "img"
+            img_list: the file is contains the list of pictures used, 
+                expressed as rows in a csv table, by default it is "files.csv",
+                which contains all files in the directory
         """
         super().__init__()
         self.img_dir = img_dir
-        self.img_list = pd.read_csv(os.path.join(img_dir, "files.csv"),
+        self.img_list = pd.read_csv(os.path.join(img_dir, img_list),
                                     names=["filename"])
         self.img_type = img_type
         
@@ -99,6 +102,7 @@ class SRDataset(Dataset):
                 img_path = os.path.join(self.img_dir, "img", img_name)
                 img = imread(img_path)
 
+                #TODO: use crop as in the paper
                 if img.shape != (size, size, 3):
                     img = resize(img, (size, size), anti_aliasing=True)
                 
