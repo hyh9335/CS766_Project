@@ -70,6 +70,8 @@ class DCGANGenerator(nn.Module):
         super().__init__()
         Conv2d = spectral_norm_convs(do_spectral_norm)
 
+        self.net_type = net_type
+
         self.encoder = nn.Sequential(
             Conv2d(4, 64, 7, padding=3, padding_mode='reflect'),
             nn.InstanceNorm2d(64),
@@ -104,6 +106,7 @@ class DCGANGenerator(nn.Module):
 
             Conv2d(64, 1 if net_type == "edge" else 3, 7, padding=3, padding_mode='reflect')
         )
+
         self.out = nn.Sigmoid()
 
         self.apply(dcgan_init)
@@ -112,5 +115,8 @@ class DCGANGenerator(nn.Module):
         x = self.encoder(x)
         x = self.middle(x)
         x = self.decoder(x)
+        if self.net_type == "sr":
+            # not sure why the original code do this
+            x = x * 2
         x = self.out(x)
         return x
