@@ -17,6 +17,7 @@ class SRDataset(Dataset):
             /hr/ -- the HR images, used as input
             /lr2x/ , /lr4x/, /lr8x/ -- the LR images
             /edge/ -- the edge generated from HR images
+            /edge_lr2x/,/edge_lr4x/,/edge_lr8x/ LR edge from LR images
             
             Note: These images should be generated before use. Check `generate_image()` for details
         Each line in files.csv correspond to a file in `img/`
@@ -59,7 +60,9 @@ class SRDataset(Dataset):
     def generate_image(self, img_type):
         """
             Generate the images.
-            img_type: can be "edge", "hr", "lr2x", "lr4x", "lr8x"
+            img_type: can be "edge", "hr", "lr2x", "lr4x", "lr8x","edge_lr2x","edge_lr4x","edge_lr8x"
+            Edge can only be generated if the image with corresponding resolution exists
+
         """
         
 
@@ -78,22 +81,39 @@ class SRDataset(Dataset):
             else:
                 raise NotImplementedError
             os.makedirs(os.path.join(self.img_dir, img_type), exist_ok=True)
-            raise NotImplementedError
+            for img_name in self.img_list["filename"]:
+                img_path = os.path.join(self.img_dir,"img",  img_name)
+                img = imread(img_path)
 
-        elif img_type == "edge":
+                if img.shape != (size/downscale, size/downscale, 3):
+                    img = resize(img, (size/downscale, size/downscale), anti_aliasing=True)
+                
+                img = img_as_ubyte(img)
+                hr_path = os.path.join(self.img_dir, img_type, img_name)
+                imsave(hr_path, img)
+
+        elif img_type.find("edge")+1:
+            if img_type == "edge":
+                downscale,edge_src = 1,"hr"
+            elif img_type.find("lr2x")+1:
+                downscale,edge_src = 2,"lr2x"
+            elif img_type.find("lr4x")+1:
+                downscale,edge_src = 4,"lr4x"
+            elif img_type.find("lr8x")+1:
+                downscale,edge_src = 8,"lr8x"
+            else:
+                raise NotImplementedError
+
             from skimage.feature import canny
             from skimage.color import rgb2gray
             os.makedirs(os.path.join(self.img_dir, img_type), exist_ok=True)
             for img_name in self.img_list["filename"]:
-                img_path = os.path.join(self.img_dir, "img", img_name)
+                img_path = os.path.join(self.img_dir, edge_src ,img_name)
                 img = imread(img_path)
-
-                if img.shape != (size, size, 3):
-                    img = resize(img, (size, size), anti_aliasing=True)
 
                 edge_img = canny(rgb2gray(img), sigma=2.0)
                 edge_img = img_as_ubyte(edge_img)
-                edge_path = os.path.join(self.img_dir, "edge", img_name)
+                edge_path = os.path.join(self.img_dir, img_type, img_name)
                 imsave(edge_path, edge_img)
 
         elif img_type == "hr":
