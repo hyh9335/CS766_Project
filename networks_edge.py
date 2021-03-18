@@ -254,9 +254,7 @@ class EdgeModel(nn.Module):
         # using ground true, process outputs from updated discriminator
         dis_input_real = torch.cat((hr_images, hr_edges), dim=1)
         dis_real, dis_real_feat = self.discriminator(dis_input_real)        # in: (rgb(3) + edge(1))    
-        """
-        Does this step need to be repeated again here???
-        """
+
         
         gen_fm_loss = 0 
         for i in range(len(dis_real_feat)):
