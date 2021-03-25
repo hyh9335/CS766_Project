@@ -158,15 +158,15 @@ class PatchGANDiscriminator(nn.Module):
         for w in self.parameters():
             nn.init.normal_(w, 0, 0.02)
 
-        def forward(self, x):
-            conv1 = self.conv1(x)
-            conv2 = self.conv2(conv1)
-            conv3 = self.conv3(conv2)
-            conv4 = self.conv4(conv3)
-            conv5 = self.conv5(conv4)
+    def forward(self, x):
+        conv1 = self.conv1(x)
+        conv2 = self.conv2(conv1)
+        conv3 = self.conv3(conv2)
+        conv4 = self.conv4(conv3)
+        conv5 = self.conv5(conv4)
 
-            outputs = conv5
-            if self.use_sigmoid:
-                outputs = torch.sigmoid(outputs)
-            
-            return outputs, [conv1, conv2, conv3, conv4, conv5]
+        outputs = conv5
+        if self.use_sigmoid:
+            outputs = torch.sigmoid(outputs)
+        
+        return outputs, [conv1, conv2, conv3, conv4, conv5]

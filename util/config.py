@@ -1,32 +1,6 @@
 import os
 import yaml
 
-class Config(dict):
-    def __init__(self, copy=DEFAULT_CONFIG):
-        super().__init__()
-        if copy is not None:
-            for k in copy:
-                self[k] = copy[k]
-    
-    def __getattr__(self, key):
-        if key in self:
-            return self[key]
-        else:
-            return None
-    
-    def __setattr__(self, key, value):
-        self[key] = value
-
-    def print(self):
-        print('Model configurations:')
-        print('---------------------------------')
-        for k in self:
-            print(f'{k} : {self[k]}')
-        print('')
-        print('---------------------------------')
-        print('')
-
-
 DEFAULT_CONFIG = {
     'MODE': 1,                      # 1: train, 2: test, 3: eval
     'MODEL': 1,                     # 1: edge model, 2: SR model, 3: SR model with edge enhancer
@@ -59,3 +33,30 @@ DEFAULT_CONFIG = {
     'EVAL_INTERVAL': 0,             # how many iterations to wait before model evaluation (0: never)
     'LOG_INTERVAL': 10,             # how many iterations to wait before logging training status (0: never)
 }
+
+class Config(dict):
+    def __init__(self, copy=DEFAULT_CONFIG):
+        super().__init__()
+        if copy is not None:
+            for k in copy:
+                self[k] = copy[k]
+    
+    def __getattr__(self, key):
+        if key in self:
+            return self[key]
+        else:
+            return None
+    
+    def __setattr__(self, key, value):
+        self[key] = value
+
+    def print(self):
+        print('Model configurations:')
+        print('---------------------------------')
+        for k in self:
+            print(f'{k} : {self[k]}')
+        print('')
+        print('---------------------------------')
+        print('')
+
+
