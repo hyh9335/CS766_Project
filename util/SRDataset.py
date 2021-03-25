@@ -83,7 +83,7 @@ class SRDataset(Dataset):
                 raise NotImplementedError
             os.makedirs(os.path.join(self.img_dir, img_type), exist_ok=True)
             for img_name in self.img_list["filename"]:
-                img_path = os.path.join(self.img_dir, "img",  img_name)
+                img_path = os.path.join(self.img_dir, "hr",  img_name)
                 img = imread(img_path)
 
                 if img.shape != (size/downscale, size/downscale, 3):
@@ -94,7 +94,7 @@ class SRDataset(Dataset):
                 hr_path = os.path.join(self.img_dir, img_type, img_name)
                 imsave(hr_path, img)
 
-        elif img_type("edge")+1:
+        elif img_type.startswith("edge"):
             # low resolution edge images ?
             if img_type == "edge":
                 downscale, edge_src = 1, "hr"
