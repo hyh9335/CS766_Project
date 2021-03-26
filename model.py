@@ -61,13 +61,13 @@ class EdgeModel(nn.Module):
 
         self.gen_optimizer = optim.Adam(
             params=generator.parameters(),
-            lr=float(config.LR*10),                                        #The learning rate if discriminator is speed up!
+            lr=float(config.LR),                                        
             betas=(config.BETA1, config.BETA2)                          
         )
 
         self.dis_optimizer = optim.Adam(
             params=discriminator.parameters(),
-            lr=float(config.LR)/10,                                     #The learning rate if discriminator is slowed down!!
+            lr=float(config.LR),                                     
             betas=(config.BETA1, config.BETA2)
         )
         

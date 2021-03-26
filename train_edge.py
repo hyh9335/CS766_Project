@@ -17,7 +17,7 @@ edgeacc=EdgeAccuracy().cuda()
 epochs = 10
 set14 = SRDataset(os.path.join(*cfg.DATAPATH),
                   ["lr2x", "hr", "edge_lr2x", "edge"])
-train_loader = DataLoader(set14, batch_size=cfg.BATCH_SIZE, shuffle=True)
+train_loader = DataLoader(set14, batch_size=cfg.BATCH_SIZE, shuffle=True, num_workers=2) #num_workers enables multi-process data loading
 
 
 
