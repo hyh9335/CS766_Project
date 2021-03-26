@@ -52,14 +52,14 @@ class SRDataset(Dataset):
                     self.generate_image(img_type,idx)
                 
                 img_paths.append(img_path)
-            return tuple(read_image(img_path) for img_path in img_paths)
+            return tuple(read_image(img_path).float()/255 for img_path in img_paths)
         else:
             img_path = os.path.join(self.img_dir, self.img_type,
                                     self.img_list.iloc[idx].filename)
             
             if not os.path.exists(img_path):
                 self.generate_image(img_type,idx)
-            image = read_image(img_path)
+            image = read_image(img_path).float()/255
             return image
 
     def __len__(self):

@@ -30,14 +30,14 @@ for t in range(epochs):
         lr_images, hr_images, lr_edges, hr_edges = (
             item.cuda() for item in items)
         hr_edges_pred, gen_loss, dis_loss, logs = model.process(
-            lr_images.float(), hr_images.float(), lr_edges.float(), hr_edges.float())
+            lr_images, hr_images, lr_edges, hr_edges)
 
         
         time_end = time.time()
         logs = ["\n", ("epoch:", t), ("iter", batch),
                 ('time cost', time_end - time_start)] + logs
         if batch % 10 == 0:
-            precision, recall = edgeacc(hr_edges.float() / 255.0, hr_edges_pred)
+            precision, recall = edgeacc(hr_edges, hr_edges_pred)
             logs = ["\n", ("precision:", precision), ("recall", recall)] + logs
             with open("logs.txt", "a", encoding='UTF-8') as f:
                 f.write("\n".join([str(i) for i in logs]))

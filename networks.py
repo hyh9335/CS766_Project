@@ -69,19 +69,20 @@ class DCGANGenerator(nn.Module):
         """
         super().__init__()
         Conv2d = spectral_norm_convs(use_spectral_norm)
+        Conv2d_bias = spectral_norm_convs(use_spectral_norm,layer=nn.Conv2d)
 
         self.net_type = net_type
 
         self.encoder = nn.Sequential(
-            Conv2d(4, 64, 7, padding=3, padding_mode='reflect'),
+            Conv2d_bias(4, 64, 7, padding=3, padding_mode='reflect'),
             nn.InstanceNorm2d(64),
             nn.ReLU(True),
 
-            Conv2d(64, 128, 4, stride=2, padding=1),
+            Conv2d_bias(64, 128, 4, stride=2, padding=1),
             nn.InstanceNorm2d(128),
             nn.ReLU(True),
 
-            Conv2d(128, 256, 4, stride=2, padding=1),
+            Conv2d_bias(128, 256, 4, stride=2, padding=1),
             nn.InstanceNorm2d(256),
             nn.ReLU(True),
         )
@@ -104,7 +105,7 @@ class DCGANGenerator(nn.Module):
             nn.InstanceNorm2d(64),
             nn.ReLU(True),
 
-            Conv2d(64, 1 if net_type == "edge" else 3, 7, padding=3, padding_mode='reflect')
+            Conv2d_bias(64, 1 if net_type == "edge" else 3, 7, padding=3, padding_mode='reflect')
         )
 
         self.out = nn.Sigmoid()
