@@ -48,24 +48,34 @@ class SRDataset(Dataset):
             for img_type in self.img_type:
                 img_path = os.path.join(self.img_dir, img_type,
                                         self.img_list.iloc[idx].filename)
+                if not os.path.exists(img_path):
+                    self.generate_image(img_type,idx)
+                
                 img_paths.append(img_path)
             return tuple(read_image(img_path) for img_path in img_paths)
         else:
             img_path = os.path.join(self.img_dir, self.img_type,
                                     self.img_list.iloc[idx].filename)
+            
+            if not os.path.exists(img_path):
+                self.generate_image(img_type,idx)
             image = read_image(img_path)
             return image
 
     def __len__(self):
         return len(self.img_list)
 
-    def generate_image(self, img_type):
+    def generate_image(self, img_type, idx='all'):
         """
             Generate the images.
             img_type: can be "edge", "hr", "lr2x", "lr4x", "lr8x","edge_lr2x","edge_lr4x","edge_lr8x"
             Edge can only be generated if the image with corresponding resolution exists
 
         """
+        if idx == 'all':
+            idx = self.img_list["filename"]
+        else:
+            idx=[self.img_list.iloc[idx].filename]
 
         from skimage.transform import resize, rescale
         from skimage.io import imread, imsave
@@ -82,7 +92,7 @@ class SRDataset(Dataset):
             else:
                 raise NotImplementedError
             os.makedirs(os.path.join(self.img_dir, img_type), exist_ok=True)
-            for img_name in self.img_list["filename"]:
+            for img_name in idx:
                 img_path = os.path.join(self.img_dir, "hr",  img_name)
                 img = imread(img_path)
 
@@ -110,7 +120,7 @@ class SRDataset(Dataset):
             from skimage.feature import canny
             from skimage.color import rgb2gray
             os.makedirs(os.path.join(self.img_dir, img_type), exist_ok=True)
-            for img_name in self.img_list["filename"]:
+            for img_name in idx:
                 img_path = os.path.join(self.img_dir, edge_src, img_name)
                 img = imread(img_path)
 
@@ -121,7 +131,7 @@ class SRDataset(Dataset):
 
         elif img_type == "hr":
             os.makedirs(os.path.join(self.img_dir, img_type), exist_ok=True)
-            for img_name in self.img_list["filename"]:
+            for img_name in idx:
                 img_path = os.path.join(self.img_dir, "img", img_name)
                 img = imread(img_path)
 
@@ -132,3 +142,4 @@ class SRDataset(Dataset):
                 img = img_as_ubyte(img)
                 hr_path = os.path.join(self.img_dir, "hr", img_name)
                 imsave(hr_path, img)
+

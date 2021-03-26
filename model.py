@@ -61,13 +61,13 @@ class EdgeModel(nn.Module):
 
         self.gen_optimizer = optim.Adam(
             params=generator.parameters(),
-            lr=float(config.LR),
-            betas=(config.BETA1, config.BETA2)
+            lr=float(config.LR*10),                                        #The learning rate if discriminator is speed up!
+            betas=(config.BETA1, config.BETA2)                          
         )
 
         self.dis_optimizer = optim.Adam(
             params=discriminator.parameters(),
-            lr=float(config.LR)/10,
+            lr=float(config.LR)/10,                                     #The learning rate if discriminator is slowed down!!
             betas=(config.BETA1, config.BETA2)
         )
         
@@ -85,8 +85,8 @@ class EdgeModel(nn.Module):
         dis_real, dis_real_feat = self.discriminator(dis_input_real)        # in: (rgb(3) + edge(1))
         dis_fake, dis_fake_feat = self.discriminator(dis_input_fake)        # in: (rgb(3) + edge(1))
         #discriminator loss
-        dis_real_loss = self.adversarial_loss(dis_real, True, True)
-        dis_fake_loss = self.adversarial_loss(dis_fake, False, True)
+        dis_real_loss = self.adversarial_loss(dis_real, True, True)         # loss=1~0 if dis_real=0~1; 
+        dis_fake_loss = self.adversarial_loss(dis_fake, False, True)        # loss=1~2 if dis_real=0~1; 
         dis_loss += (dis_real_loss + dis_fake_loss) / 2
         
         #logs
@@ -118,7 +118,7 @@ class EdgeModel(nn.Module):
         #generator gan loss
         gen_gan_loss = self.adversarial_loss(gen_fake, True, False) * self.config.ADV_LOSS_WEIGHT1
         gen_loss += gen_gan_loss
-        # generator feature matching loss
+        # generator feature matching loss                                   #loss=0~-1 if gen_fake=0~1; 
         # using ground true, process outputs from updated discriminator
         dis_input_real = torch.cat((hr_images, hr_edges), dim=1)
         dis_real, dis_real_feat = self.discriminator(dis_input_real)        # in: (rgb(3) + edge(1))    

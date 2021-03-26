@@ -15,7 +15,7 @@ DEFAULT_CONFIG = {
     'LR': 0.0001,                # learning rate
     'BETA1': 0.0,                # adam optimizer beta1
     'BETA2': 0.9,                # adam optimizer beta2
-    'BATCH_SIZE': 2,                # input batch size for training
+    'BATCH_SIZE': 2,                # input batch size for trainingceleba-hq
     'HR_SIZE': 256,                 # HR image size for training 0 for original size
     'SIGMA': 2,                     # standard deviation of the Gaussian filter used in Canny edge detector (0: random, -1: no edge)
     'MAX_ITERS': 2e7,               # maximum number of iterations to train the model

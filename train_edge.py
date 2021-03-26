@@ -3,6 +3,7 @@
 
 
 from util.SRDataset import SRDataset
+from util.metric import EdgeAccuracy
 from util.config import Config
 from model import EdgeModel
 import time
@@ -12,12 +13,12 @@ import os
 cfg = Config()
 model = EdgeModel(cfg).cuda()
 # model = EdgeModel(cfg)
-
+edgeacc=EdgeAccuracy().cuda()
 epochs = 10
 set14 = SRDataset(os.path.join(*cfg.DATAPATH),
                   ["lr2x", "hr", "edge_lr2x", "edge"])
 train_loader = DataLoader(set14, batch_size=cfg.BATCH_SIZE, shuffle=True)
-'''To do: pass all input information and metadata from Config'''
+
 
 
 for t in range(epochs):
@@ -31,11 +32,15 @@ for t in range(epochs):
         hr_edges_pred, gen_loss, dis_loss, logs = model.process(
             lr_images.float(), hr_images.float(), lr_edges.float(), hr_edges.float())
 
+        
         time_end = time.time()
         logs = ["\n", ("epoch:", t), ("iter", batch),
-                ('time cost', time_end-time_start)]+logs
-        with open("logs.txt", "a", encoding='UTF-8') as f:
-            f.write("\n".join([str(i) for i in logs]))
+                ('time cost', time_end - time_start)] + logs
+        if batch % 10 == 0:
+            precision, recall = edgeacc(hr_edges.float() / 255.0, hr_edges_pred)
+            logs = ["\n", ("precision:", precision), ("recall", recall)] + logs
+            with open("logs.txt", "a", encoding='UTF-8') as f:
+                f.write("\n".join([str(i) for i in logs]))
         batch += 1
 print("Done!")
 
