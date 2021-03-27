@@ -48,7 +48,7 @@ class EdgeModel(nn.Module):
         # generator input: [rgb(3) + edge(1)]
         # discriminator input: (rgb(3) + edge(1))
         generator = DCGANGenerator(use_spectral_norm=True, net_type="edge")
-        discriminator = PatchGANDiscriminator(in_channels=4, use_sigmoid=True)
+        discriminator = PatchGANDiscriminator(in_channels=4, use_sigmoid= config.GAN_LOSS != 'hinge')
 
         l1_loss = nn.L1Loss()
         adversarial_loss = AdversarialLoss(type=config.GAN_LOSS)  #???
