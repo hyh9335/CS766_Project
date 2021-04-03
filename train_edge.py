@@ -20,9 +20,6 @@ set14 = SRDataset(os.path.join(*cfg.DATAPATH),
 train_loader = DataLoader(set14, batch_size=cfg.BATCH_SIZE, shuffle=True, num_workers=2,pin_memory=True) #num_workers enables multi-process data loading
 
 
-
-
-
 for t in range(epochs):
     print('\n\nTraining epoch: %d' % t)
     batch = 1
