@@ -55,3 +55,13 @@ for t in range(epochs):
 print("Done!")
 
 
+
+import torch
+if torch.cuda.is_available():
+    data = torch.load("2nd_gen_weights_path")
+model.generator.load_state_dict(data['generator'])
+
+if torch.cuda.is_available():
+    data = torch.load("2nd_dis_weights_path")
+
+model.discriminator.load_state_dict(data['discriminator'])
