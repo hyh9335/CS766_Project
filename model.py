@@ -128,7 +128,7 @@ class SRModel(nn.Module):
         # generator input: [rgb(3) + edge(1)]
         # discriminator input: rgb(3)
         self.generator = DCGANGenerator(use_spectral_norm=False, net_type="sr")
-        self.discriminator = PatchGANDiscriminator(in_channels=4, use_sigmoid= config.GAN_LOSS != 'hinge')
+        self.discriminator = PatchGANDiscriminator(in_channels=3, use_sigmoid= config.GAN_LOSS != 'hinge')
 
         self.l1_loss = nn.L1Loss()
         self.adversarial_loss = AdversarialLoss(type=config.GAN_LOSS)
@@ -139,7 +139,8 @@ class SRModel(nn.Module):
         kernel[0, 0] = 1
 
          # (out_channels, in_channels/groups, height, width)
-        self.scale_kernel = torch.FloatTensor(np.tile(kernel, (3, 1, 1, 1,)))
+        scale_kernel = torch.FloatTensor(np.tile(kernel, (3, 1, 1, 1,)))
+        self.register_buffer('scale_kernel', scale_kernel)
 
         self.gen_optimizer = optim.Adam(
             params=self.generator.parameters(),
@@ -190,7 +191,7 @@ class SRModel(nn.Module):
         #Use the same output, since generator hasn't been updated yet
         
         # process outputs from updated discriminator
-        gen_input_fake = torch.cat((hr_images, outputs), dim=1)
+        gen_input_fake = outputs
         gen_fake, gen_fake_feat = self.discriminator(gen_input_fake)
 
         #generator gan loss
