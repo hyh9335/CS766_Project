@@ -90,10 +90,10 @@ class EdgeModel(nn.Module):
         dis_loss += (dis_real_loss + dis_fake_loss) / 2
         
         #logs
-        logs = [
-            ("l_dis", dis_loss.item()),
-            ("dis_fake_loss", dis_fake_loss.item()),
-            ("dis_real_loss", dis_real_loss.item())]
+        logs = {
+            "l_dis": dis_loss.item(),
+            "dis_fake_loss": dis_fake_loss.item(),
+            "dis_real_loss": dis_real_loss.item()}
         
         #backward and update
         dis_loss.backward()
@@ -133,9 +133,10 @@ class EdgeModel(nn.Module):
         gen_loss += gen_fm_loss
 
         # create logs
-        logs = logs+ [("l_gen", gen_gan_loss.item()),
-            ("l_fm", gen_fm_loss.item()),
-        ]
+        logs.update({"l_gen": gen_gan_loss.item(),
+            "l_fm": gen_fm_loss.item(),
+            "l_gen_total": gen_loss.item()})
+
         #backward and update
         gen_loss.backward()
         self.gen_optimizer.step()

@@ -3,7 +3,7 @@ from torch.utils.data import Dataset
 from torchvision.io import read_image
 import pandas as pd
 import os
-
+from torchvision.io import write_jpeg
 
 class SRDataset(Dataset):
     """
@@ -143,3 +143,13 @@ class SRDataset(Dataset):
                 hr_path = os.path.join(self.img_dir, "hr", img_name)
                 imsave(hr_path, img)
 
+def imsave(imgtensor,path):
+    """
+    Input a CHW tensor in float between 0 and 1
+    Save into *.jpg file
+    """
+    if imgtensor.device.type != 'cpu':
+        imgtensor = imgtensor.to('cpu')
+    imgtensor = imgtensor * 255
+    imgtensor = imgtensor.byte()
+    write_jpeg(imgtensor,path)
