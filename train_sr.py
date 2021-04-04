@@ -52,7 +52,7 @@ for t in range(epochs):
         
         if batch % 10 == 0:
             psnr_val = psnr(hr_images, hr_images_pred)
-            logs.update({'psnr', psnr_val.item()})
+            logs.update({'psnr': psnr_val.item()})
             
             ssim_val = ssim(hr_images, hr_images_pred, data_range=1.)
             logs.update({"ssim": ssim_val.item()})
