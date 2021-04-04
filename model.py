@@ -172,12 +172,6 @@ class SRModel(nn.Module):
         dis_fake_loss = self.adversarial_loss(dis_fake, False, True)        # loss=1~2 if dis_real=0~1; 
         dis_loss += (dis_real_loss + dis_fake_loss) / 2
         
-        #logs
-        logs = {
-            "l_dis": dis_loss.item(),
-            "dis_fake_loss": dis_fake_loss.item(),
-            "dis_real_loss": dis_real_loss.item()}
-        
         #backward and update
         dis_loss.backward()
         self.dis_optimizer.step()
@@ -229,6 +223,8 @@ class SRModel(nn.Module):
             ("l_content", gen_content_loss.item()),
             ("l_style", gen_style_loss.item()),
         ]
+
+        logs = dict(logs)
 
         self.gen_optimizer.step()
 

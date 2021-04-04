@@ -52,14 +52,17 @@ for t in range(epochs):
         
         if batch % 10 == 0:
             psnr_val = psnr(hr_images, hr_images_pred)
-            logs.update({'psnr': psnr_val.item()})
+            logs.update({'psnr', psnr_val.item()})
             
             ssim_val = ssim(hr_images, hr_images_pred, data_range=1.)
-            logs.update({"ssim:": ssim_val.item()})
+            logs.update({"ssim": ssim_val.item()})
 
             time_end = time.time()
-            logs.update ({"epoch:": t, "iter": batch,
-                    'time cost': time_end - time_start})
+            logs.update({
+                "epoch":  t,
+                "iter": batch,
+                "time cost": time_end - time_start
+            }) 
             
             with open("logs.txt", "a", encoding='UTF-8') as f:
                 f.write("\n"+"\t".join(i for i in sorted(logs)))
