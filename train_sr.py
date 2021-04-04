@@ -51,8 +51,8 @@ for t in range(epochs):
             lr_images, hr_images, hr_edges)
         
         if batch % 10 == 0:
-            precision, recall = psnr(hr_images, hr_images_pred)
-            logs.update({"precision:": precision.item(), "recall": recall.item()})
+            psnr_val = psnr(hr_images, hr_images_pred)
+            logs.update({'psnr': psnr_val.item()})
             
             ssim_val = ssim(hr_images, hr_images_pred, data_range=1.)
             logs.update({"ssim:": ssim_val.item()})
