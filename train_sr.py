@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-
 from util.SRDataset import SRDataset
 from util.metric import PSNR
 from pytorch_msssim import ssim

@@ -52,10 +52,11 @@ class StyleContentLoss(nn.Module):
     style_loss_layers = ('relu2_2', 'relu3_4', 'relu4_4', 'relu5_2')
     content_loss_layers = ('relu1_1', 'relu2_1', 'relu3_1', 'relu4_1', 'relu5_1')
 
-    def __init__(self):
+    def __init__(self, content_loss_weights=[1.0, 1.0, 1.0, 1.0, 1.0]):
         super().__init__()
         self.vgg_features = VGG19Features()
         self.criterion = torch.nn.L1Loss()
+        self.content_loss_weights = content_loss_weights
 
     def compute_gram(self, x):
         b, ch, h, w = x.size()
@@ -75,7 +76,7 @@ class StyleContentLoss(nn.Module):
 
         content_loss = 0.0
         for num, layer in enumerate(self.__class__.content_loss_layers):
-            content_loss += self.weights[num] * self.criterion(x_vgg[layer], y_vgg[layer])
+            content_loss += self.content_loss_weights[num] * self.criterion(x_vgg[layer], y_vgg[layer])
         
         return style_loss, content_loss
 

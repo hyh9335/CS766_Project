@@ -212,11 +212,8 @@ class SRModel(nn.Module):
         gen_loss += gen_style_loss
 
         # using ground true, process outputs from updated discriminator
-        dis_input_real = torch.cat((hr_images, hr_edges), dim=1)
+        dis_input_real = hr_images
         dis_real, dis_real_feat = self.discriminator(dis_input_real)  
-        """
-        Does this step need to be repeated again here???
-        """
         
         gen_fm_loss = 0 
         for i in range(len(dis_real_feat)):
