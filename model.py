@@ -38,15 +38,11 @@ class EdgeModel(nn.Module):
             lr=float(config.LR),                                     
             betas=(config.BETA1, config.BETA2)
         )
-        
-    def process(self, lr_images, hr_images, lr_edges, hr_edges):
+    
+    def dis_step(self, outputs, lr_images, hr_images, lr_edges, hr_edges):
         ## Update discriminator
         self.dis_optimizer.zero_grad()
         dis_loss = 0
-
-        # process outputs from generator
-        outputs = self(lr_images, lr_edges)
-
         # process outputs from generator
         dis_input_real = torch.cat((hr_images, hr_edges), dim=1)
         dis_input_fake = torch.cat((hr_images, outputs.detach()), dim=1)
@@ -66,9 +62,9 @@ class EdgeModel(nn.Module):
         #backward and update
         dis_loss.backward()
         self.dis_optimizer.step()
-
-
-        
+        return diss_loss.item(), logs
+    
+    def gen_step(self, outputs, lr_images, hr_images, lr_edges, hr_edges):
         ## Update generator       
         self.gen_optimizer.zero_grad()
         gen_loss = 0
@@ -89,10 +85,7 @@ class EdgeModel(nn.Module):
         # generator feature matching loss                                   #loss=0~-1 if gen_fake=0~1; 
         # using ground true, process outputs from updated discriminator
         dis_input_real = torch.cat((hr_images, hr_edges), dim=1)
-        dis_real, dis_real_feat = self.discriminator(dis_input_real)        # in: (rgb(3) + edge(1))    
-        """
-        Does this step need to be repeated again here???
-        """
+        dis_real, dis_real_feat = self.discriminator(dis_input_real)        # in: (rgb(3) + edge(1))
         
         gen_fm_loss = 0 
         for i in range(len(dis_real_feat)):
@@ -101,16 +94,30 @@ class EdgeModel(nn.Module):
         gen_loss += gen_fm_loss
 
         # create logs
-        logs.update({"l_gen": gen_gan_loss.item(),
+        logs = {"l_gen": gen_gan_loss.item(),
             "l_fm": gen_fm_loss.item(),
-            "l_gen_total": gen_loss.item()})
+            "l_gen_total": gen_loss.item()}
 
         #backward and update
         gen_loss.backward()
         self.gen_optimizer.step()
+
+        return gen_loss.item(), logs
         
+    def process(self, lr_images, hr_images, lr_edges, hr_edges):
+
+        # process outputs from generator
+        outputs = self(lr_images, lr_edges)
+
+        logs = {}
         
-        return outputs, 'gen_loss', dis_loss, logs        
+        dis_loss, dlogs = self.dis_step(outputs, lr_images, hr_images, lr_edges, hr_edges)
+        gen_loss, glogs = self.gen_step(outputs, lr_images, hr_images, lr_edges, hr_edges)
+
+        logs.update(dlogs)
+        logs.update(glogs)
+                
+        return outputs, gen_loss, dis_loss, logs        
     
     
     def forward(self, lr_images, lr_edges):
