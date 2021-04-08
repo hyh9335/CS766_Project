@@ -62,7 +62,7 @@ class EdgeModel(nn.Module):
         #backward and update
         dis_loss.backward()
         self.dis_optimizer.step()
-        return diss_loss.item(), logs
+        return dis_loss.item(), logs
     
     def gen_step(self, outputs, lr_images, hr_images, lr_edges, hr_edges):
         ## Update generator       
