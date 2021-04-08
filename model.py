@@ -153,19 +153,15 @@ class SRModel(nn.Module):
             lr=float(config.LR),                                     
             betas=(config.BETA1, config.BETA2)
         )
-
-    def process(self, lr_images, hr_images, hr_edges):
+    
+    def dis_step(self, outputs, lr_images, hr_images, hr_edges):
         ## Update discriminator
         self.dis_optimizer.zero_grad()
         dis_loss = 0
 
         # process outputs from generator
-        outputs = self(lr_images, hr_edges)
-
-        # process outputs from generator
-        dis_input_real = hr_images
-        dis_input_fake = outputs.detach()
-        dis_real, dis_real_feat = self.discriminator(dis_input_real)
+        dis_input_fake = outputs.detach_()
+        dis_real, dis_real_feat = self.discriminator(hr_images)
         dis_fake, dis_fake_feat = self.discriminator(dis_input_fake)
         #discriminator loss
         dis_real_loss = self.adversarial_loss(dis_real, True, True)         # loss=1~0 if dis_real=0~1; 
@@ -176,7 +172,9 @@ class SRModel(nn.Module):
         dis_loss.backward()
         self.dis_optimizer.step()
 
-
+        return dis_loss.item(), dict([("l_dis", dis_loss.item())])
+    
+    def gen_step(self, outputs, lr_images, hr_images, hr_edges):
         ## Update generator       
         self.gen_optimizer.zero_grad()
         gen_loss = 0
@@ -217,7 +215,6 @@ class SRModel(nn.Module):
 
         # create logs
         logs = [
-            ("l_dis", dis_loss.item()),
             ("l_gen", gen_gan_loss.item()),
             ("l_l1", gen_l1_loss.item()),
             ("l_content", gen_content_loss.item()),
@@ -228,7 +225,23 @@ class SRModel(nn.Module):
 
         self.gen_optimizer.step()
 
-        return outputs, gen_loss, dis_loss, logs
+        return gen_loss.item(), logs
+
+    def process(self, lr_images, hr_images, hr_edges):
+        
+        # process outputs from generator
+        outputs = self(lr_images, hr_edges)
+
+        logs = {}
+
+        dis_loss, dlogs = self.dis_step(outputs, lr_images, hr_images, hr_edges)
+        gen_loss, glogs = self.gen_step(outputs, lr_images, hr_images, hr_edges)
+
+        logs.update(dlogs)
+        logs.update(glogs)
+
+        return outputs, dis_loss, gen_loss, logs
+
 
     def forward(self, lr_images, hr_edges):
         hr_images = F.conv_transpose2d(lr_images, self.scale_kernel, stride=2, groups=3)
