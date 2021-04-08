@@ -160,7 +160,7 @@ class SRModel(nn.Module):
         dis_loss = 0
 
         # process outputs from generator
-        dis_input_fake = outputs.detach_()
+        dis_input_fake = outputs.detach()
         dis_real, dis_real_feat = self.discriminator(hr_images)
         dis_fake, dis_fake_feat = self.discriminator(dis_input_fake)
         #discriminator loss
