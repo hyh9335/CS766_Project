@@ -137,10 +137,6 @@ class SRModel(nn.Module):
         self.generator = DCGANGenerator(use_spectral_norm=False, net_type="sr")
         self.discriminator = PatchGANDiscriminator(in_channels=3, use_sigmoid= config.GAN_LOSS != 'hinge')
 
-        if len(config.GPU) > 1:
-            generator = nn.DataParallel(generator, config.GPU)
-            discriminator = nn.DataParallel(discriminator , config.GPU)
-
         self.l1_loss = nn.L1Loss()
         self.adversarial_loss = AdversarialLoss(type=config.GAN_LOSS)
 
