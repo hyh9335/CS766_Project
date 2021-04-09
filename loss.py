@@ -124,6 +124,5 @@ class VGG19Features(nn.Module):
 
     def forward(self, input):
         self.outputs = {}
-        with torch.no_grad():
-            self.features(input)
+        self.features(input)
         return self.outputs
