@@ -137,6 +137,10 @@ class SRModel(nn.Module):
         self.generator = DCGANGenerator(use_spectral_norm=False, net_type="sr")
         self.discriminator = PatchGANDiscriminator(in_channels=3, use_sigmoid= config.GAN_LOSS != 'hinge')
 
+        if len(config.GPU) > 1:
+            generator = nn.DataParallel(generator, config.GPU)
+            discriminator = nn.DataParallel(discriminator , config.GPU)
+
         self.l1_loss = nn.L1Loss()
         self.adversarial_loss = AdversarialLoss(type=config.GAN_LOSS)
 
@@ -168,8 +172,8 @@ class SRModel(nn.Module):
 
         # process outputs from generator
         dis_input_fake = outputs.detach()
-        dis_real, dis_real_feat = self.discriminator(hr_images)
-        dis_fake, dis_fake_feat = self.discriminator(dis_input_fake)
+        dis_real, _ = self.discriminator(hr_images)
+        dis_fake, _ = self.discriminator(dis_input_fake)
         #discriminator loss
         dis_real_loss = self.adversarial_loss(dis_real, True, True)         # loss=1~0 if dis_real=0~1; 
         dis_fake_loss = self.adversarial_loss(dis_fake, False, True)        # loss=1~2 if dis_real=0~1; 
@@ -230,6 +234,7 @@ class SRModel(nn.Module):
 
         logs = dict(logs)
 
+        gen_loss.backward()
         self.gen_optimizer.step()
 
         return gen_loss.item(), logs
