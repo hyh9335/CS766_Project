@@ -145,10 +145,6 @@ class SRDataset(Dataset):
                 imsave(hr_path, img)
 
         elif img_type.startswith("pred_edge"):
-            if model.config.SCALE != downscale:
-                print("Please check if the model is using the same scale factor!")
-                raise NotImplementedError
-
             if img_type == "pred_edge_lr2x":
                 downscale = 2
             elif img_type == "pred_edge_lr4x":
@@ -158,8 +154,12 @@ class SRDataset(Dataset):
             else:
                 raise NotImplementedError
             
+            if model.config.SCALE != downscale:
+                print("Please check if the model is using the same scale factor!")
+                raise NotImplementedError
+            
             os.makedirs(os.path.join(self.img_dir, img_type), exist_ok=True)
-            device = torch.device("cuda:0" if next(model.parameters()).is_cuda else "cpu") 
+            device = torch.device("cuda" if next(model.parameters()).is_cuda else "cpu") 
             
             for img_name in idx:
                 img_path = os.path.join(self.img_dir, "lr"+str(downscale)+"x", img_name)
