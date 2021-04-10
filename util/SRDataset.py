@@ -65,10 +65,11 @@ class SRDataset(Dataset):
     def __len__(self):
         return len(self.img_list)
 
-    def generate_image(self, img_type, idx='all'):
+    def generate_image(self, img_type, idx='all', model=None):
         """
             Generate the images.
             img_type: can be "edge", "hr", "lr2x", "lr4x", "lr8x","edge_lr2x","edge_lr4x","edge_lr8x"
+                      can also be "pred_edge_lr2x","pred_edge_lr4x","pred_edge_lr8x"
             Edge can only be generated if the image with corresponding resolution exists
 
         """
@@ -143,7 +144,34 @@ class SRDataset(Dataset):
                 hr_path = os.path.join(self.img_dir, "hr", img_name)
                 imsave(hr_path, img)
 
-def imsave(imgtensor,path):
+        elif img_type.startswith("pred_edge"):
+            if model.config.SCALE != downscale:
+                print("Please check if the model is using the same scale factor!")
+                raise NotImplementedError
+
+            if img_type == "pred_edge_lr2x":
+                downscale = 2
+            elif img_type == "pred_edge_lr4x":
+                downscale = 4
+            elif img_type == "pred_edge_lr8x":
+                downscale = 8
+            else:
+                raise NotImplementedError
+            
+            os.makedirs(os.path.join(self.img_dir, img_type), exist_ok=True)
+            device = torch.device("cuda:0" if next(model.parameters()).is_cuda else "cpu") 
+            
+            for img_name in idx:
+                img_path = os.path.join(self.img_dir, "lr"+str(downscale)+"x", img_name)
+                lr_img = (read_image(img_path).float()/255).to(device)
+                img_path = os.path.join(self.img_dir, "edge_lr"+str(downscale)+"x", img_name)
+                lr_edge = (read_image(img_path).float()/255).to(device)
+                
+                pred_edge=model(lr_img.unsqueeze_(0),lr_edge.unsqueeze_(0))
+                edge_path = os.path.join(self.img_dir, img_type, img_name)
+                imsave_tensor(pred_edge[0,:,:,:], edge_path)
+
+def imsave_tensor(imgtensor,path):
     """
     Input a CHW tensor in float between 0 and 1
     Save into *.jpg file
