@@ -226,6 +226,7 @@ class SRModel(nn.Module):
             ("l_l1", gen_l1_loss.item()),
             ("l_content", gen_content_loss.item()),
             ("l_style", gen_style_loss.item()),
+            ("l_fm", gen_fm_loss.item())
         ]
 
         logs = dict(logs)
@@ -242,7 +243,8 @@ class SRModel(nn.Module):
 
         logs = {}
 
-        dis_loss, dlogs = self.dis_step(outputs, lr_images, hr_images, hr_edges)
+        for _ in range(2):
+            dis_loss, dlogs = self.dis_step(outputs, lr_images, hr_images, hr_edges)
         gen_loss, glogs = self.gen_step(outputs, lr_images, hr_images, hr_edges)
 
         logs.update(dlogs)
