@@ -98,8 +98,7 @@ class SRDataset(Dataset):
                 img = imread(img_path)
 
                 if img.shape != (size/downscale, size/downscale, 3):
-                    img = resize(img, (size/downscale, size /
-                                       downscale), anti_aliasing=True)
+                    img = center_crop_resize(img, size/downscale)
 
                 img = img_as_ubyte(img)
                 hr_path = os.path.join(self.img_dir, img_type, img_name)
@@ -138,7 +137,7 @@ class SRDataset(Dataset):
 
                 # TODO: use crop as in the paper
                 if img.shape != (size, size, 3):
-                    img = resize(img, (size, size), anti_aliasing=True)
+                    img = center_crop_resize(img, size)
 
                 img = img_as_ubyte(img)
                 hr_path = os.path.join(self.img_dir, "hr", img_name)
@@ -181,3 +180,20 @@ def imsave_tensor(imgtensor,path):
     imgtensor = imgtensor * 255
     imgtensor = imgtensor.byte()
     write_jpeg(imgtensor,path)
+
+
+def center_crop_resize(img, size):
+    """
+    crop a square as large as possible from the center of `img`,
+        and resize it to `size`
+    """
+    imgh, imgw = img.shape[0:2]
+
+    if imgh != imgw:
+        # center crop, from knazeri/edege-informed-sisr
+        side = np.minimum(imgh, imgw)
+        j = (imgh - side) // 2
+        i = (imgw - side) // 2
+        img = img[j:j + side, i:i + side, ...]
+    
+    return resize(img, (size, size), anti_aliasing=True)
