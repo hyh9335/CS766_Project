@@ -54,8 +54,8 @@ def train(model_type, config):
     
 
 def generate_edges(config):
-    edge_gen_path = os.path.join(config.MODEL_PATH, "-".join(config.DATAPATH) + "_edge_gen_weights_path.pth")
-    edge_disc_path = os.path.join(config.MODEL_PATH, "-".join(config.DATAPATH) + "_edge_disc_weights_path.pth")
+    edge_gen_path = os.path.join(*config.MODEL_PATH, "-".join(config.DATAPATH) + "_edge_gen_weights_path.pth")
+    edge_disc_path = os.path.join(*config.MODEL_PATH, "-".join(config.DATAPATH) + "_edge_disc_weights_path.pth")
 
     model = EdgeModel(config).cuda()
 
@@ -74,8 +74,8 @@ def train_edge(config):
     model = EdgeModel(config)
     edgeacc=EdgeAccuracy()
 
-    edge_gen_path = os.path.join(config.MODEL_PATH, "-".join(config.DATAPATH) + "_edge_gen_weights_path.pth")
-    edge_disc_path = os.path.join(config.MODEL_PATH, "-".join(config.DATAPATH) + "_edge_disc_weights_path.pth")
+    edge_gen_path = os.path.join(*config.MODEL_PATH, "-".join(config.DATAPATH) + "_edge_gen_weights_path.pth")
+    edge_disc_path = os.path.join(*config.MODEL_PATH, "-".join(config.DATAPATH) + "_edge_disc_weights_path.pth")
 
 
     try:
@@ -135,8 +135,9 @@ def train_edge(config):
 
 def train_sr(config):
     model = SRModel(config)
-    sr_gen_path = os.path.join(config.MODEL_PATH, "-".join(config.DATAPATH) + "_sr_gen_weights_path.pth")
-    sr_disc_path = os.path.join(config.MODEL_PATH, "-".join(config.DATAPATH) + "_sr_disc_weights_path.pth")
+
+    sr_gen_path = os.path.join(*config.MODEL_PATH, "-".join(config.DATAPATH) + "_sr_gen_weights_path.pth")
+    sr_disc_path = os.path.join(*config.MODEL_PATH, "-".join(config.DATAPATH) + "_sr_disc_weights_path.pth")
 
 
     try:

@@ -77,8 +77,6 @@ class SRDataset(Dataset):
             idx = self.img_list["filename"]
         else:
             idx=[self.img_list.iloc[idx].filename]
-
-        from skimage.transform import resize, rescale
         from skimage.io import imread, imsave
         from skimage import img_as_ubyte
 
@@ -187,6 +185,9 @@ def center_crop_resize(img, size):
     crop a square as large as possible from the center of `img`,
         and resize it to `size`
     """
+    import numpy as np
+    from skimage.transform import resize
+    
     imgh, imgw = img.shape[0:2]
 
     if imgh != imgw:
