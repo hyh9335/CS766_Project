@@ -2,7 +2,8 @@ import os
 import yaml
 
 DEFAULT_CONFIG = {
-    'DATAPATH': ('dataset','Set14'),  # directory of dataset in the tuple form
+    'DATAPATH': ['dataset','Set14'],  # directory of dataset in the list form
+    'MODEL_PATH': ['models'],
     
     'MODE': 1,                      # 1: train, 2: test, 3: eval
     'MODEL': 1,                     # 1: edge model, 2: SR model, 3: SR model with edge enhancer
