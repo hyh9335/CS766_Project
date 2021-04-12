@@ -38,7 +38,7 @@ def train(model_type, config):
             config.downscale = 2
             train('both', config)
     '''
-    if type(config) is not util.Config:
+    if type(config) is not Config:
         raise TypeError('Expect `config` to be of type `util.Config`, got ', type(config), ' instead')
 
     if model_type == 'edge':
@@ -54,9 +54,8 @@ def train(model_type, config):
     
 
 def generate_edges(config):
-    drive_path =  os.curdir
-    edge_gen_path = os.path.join(drive_path, "-".join(config.DATAPATH) + "_edge_gen_weights_path.pth")
-    edge_disc_path = os.path.join(drive_path, "-".join(config.DATAPATH) + "_edge_disc_weights_path.pth")
+    edge_gen_path = os.path.join(config.MODEL_PATH, "-".join(config.DATAPATH) + "_edge_gen_weights_path.pth")
+    edge_disc_path = os.path.join(config.MODEL_PATH, "-".join(config.DATAPATH) + "_edge_disc_weights_path.pth")
 
     model = EdgeModel(config).cuda()
 
@@ -75,9 +74,8 @@ def train_edge(config):
     model = EdgeModel(config)
     edgeacc=EdgeAccuracy()
 
-    drive_path =  os.curdir
-    edge_gen_path = os.path.join(drive_path, "-".join(config.DATAPATH) + "_edge_gen_weights_path.pth")
-    edge_disc_path = os.path.join(drive_path, "-".join(config.DATAPATH) + "_edge_disc_weights_path.pth")
+    edge_gen_path = os.path.join(config.MODEL_PATH, "-".join(config.DATAPATH) + "_edge_gen_weights_path.pth")
+    edge_disc_path = os.path.join(config.MODEL_PATH, "-".join(config.DATAPATH) + "_edge_disc_weights_path.pth")
 
 
     try:
@@ -95,7 +93,8 @@ def train_edge(config):
     iterations = 0
     epochs = 10
     data = SRDataset(os.path.join(*config.DATAPATH),
-                  ["lr2x", "hr", "edge_lr2x", "edge"])
+                  ["lr2x", "hr", "edge_lr2x", "edge"],
+                  img_list="train.csv")
     train_loader = DataLoader(data, batch_size=config.BATCH_SIZE, shuffle=True, num_workers=8, pin_memory=True)
 
     for t in range(epochs):
@@ -119,7 +118,7 @@ def train_edge(config):
                 logs.update ({"epoch:": t, "iter": batch,
                         'time cost': time_end - time_start})
 
-                with open("edge_logs.txt", "a", encoding='UTF-8') as f:
+                with open("-".join(config.DATAPATH) + "edge_logs.txt", "a", encoding='UTF-8') as f:
                     f.write("\n"+"\t".join(i for i in sorted(logs)))
                     f.write("\n"+"\t".join(str(round(logs[i],5)) for i in sorted(logs)))
                 time_start = time.time()
@@ -135,11 +134,9 @@ def train_edge(config):
 
 
 def train_sr(config):
-    drive_path =  os.curdir
-
     model = SRModel(config)
-    sr_gen_path = os.path.join(drive_path, "-".join(config.DATAPATH) + "_orig_gen_weights_path.pth")
-    sr_disc_path = os.path.join(drive_path, "-".join(config.DATAPATH) + "_orig_disc_weights_path.pth")
+    sr_gen_path = os.path.join(config.MODEL_PATH, "-".join(config.DATAPATH) + "_sr_gen_weights_path.pth")
+    sr_disc_path = os.path.join(config.MODEL_PATH, "-".join(config.DATAPATH) + "_sr_disc_weights_path.pth")
 
 
     try:
@@ -155,7 +152,8 @@ def train_sr(config):
     psnr=PSNR(1.)
     epochs = 10
     data = SRDataset(os.path.join(*config.DATAPATH),
-                    ["hr", "lr2x", "pred_edge_lr2x"])
+                    ["hr", "lr2x", "pred_edge_lr2x"],
+                  img_list="train.csv")
     # num_workers=2 because colab only has 2
     train_loader = DataLoader(data, batch_size=config.BATCH_SIZE, shuffle=True, num_workers=config.BATCH_SIZE, pin_memory=True)
     iterations = 0
@@ -189,7 +187,7 @@ def train_sr(config):
                     "time cost": time_end - time_start
                 }) 
 
-                with open("sr_logs.txt", "a", encoding='UTF-8') as f:
+                with open("-".join(config.DATAPATH) + "sr_logs.txt", "a", encoding='UTF-8') as f:
                     f.write("\n"+"\t".join(i for i in sorted(logs)))
                     f.write("\n"+"\t".join(str(round(logs[i],5)) for i in sorted(logs)))
                 time_start = time.time()
