@@ -187,11 +187,14 @@ def center_crop_resize(img, size):
     crop a square as large as possible from the center of `img`,
         and resize it to `size`
     """
+    from numpy import minimum
+    from skimage.transform import resize
+    
     imgh, imgw = img.shape[0:2]
 
     if imgh != imgw:
         # center crop, from knazeri/edege-informed-sisr
-        side = np.minimum(imgh, imgw)
+        side = minimum(imgh, imgw)
         j = (imgh - side) // 2
         i = (imgw - side) // 2
         img = img[j:j + side, i:i + side, ...]
