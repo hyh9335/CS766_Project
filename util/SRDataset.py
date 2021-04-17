@@ -1,9 +1,9 @@
 import torch
 from torch.utils.data import Dataset
-from torchvision.io import read_image
+from torchvision.io import read_image, write_jpeg
 import pandas as pd
 import os
-from torchvision.io import write_jpeg
+from torchvision.io.image import ImageReadMode
 
 class SRDataset(Dataset):
     """
@@ -41,25 +41,33 @@ class SRDataset(Dataset):
         self.img_list = pd.read_csv(os.path.join(img_dir, img_list),
                                     names=["filename"])
         self.img_type = img_type
+        self.mode = ImageReadMode
 
     def __getitem__(self, idx):
         if type(self.img_type) is list:
-            img_paths = []
+            img_data = []
             for img_type in self.img_type:
                 img_path = os.path.join(self.img_dir, img_type,
                                         self.img_list.iloc[idx].filename)
                 if not os.path.exists(img_path):
                     self.generate_image(img_type,idx)
-                
-                img_paths.append(img_path)
-            return tuple(read_image(img_path).float()/255 for img_path in img_paths)
+            
+                m = self.mode.GRAY if img_type.find('edge') + 1 else self.mode.RGB
+
+                image = read_image(img_path, mode = m).float()/255
+                img_data.append(image)
+
+            return tuple(image for image in img_data)
         else:
             img_path = os.path.join(self.img_dir, self.img_type,
                                     self.img_list.iloc[idx].filename)
             
             if not os.path.exists(img_path):
                 self.generate_image(img_type,idx)
-            image = read_image(img_path).float()/255
+            
+            m = self.mode.GRAY if self.img_type.find('edge') + 1 else self.mode.RGB
+
+            image = read_image(img_path, mode = m).float()/255
             return image
 
     def __len__(self):
@@ -189,7 +197,7 @@ def center_crop_resize(img, size):
     """
     from numpy import minimum
     from skimage.transform import resize
-    
+
     imgh, imgw = img.shape[0:2]
 
     if imgh != imgw:
