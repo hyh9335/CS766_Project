@@ -97,7 +97,9 @@ class SRDataset(Dataset):
         if idx == 'all':
             idx = self.img_list["filename"]
         else:
-            idx=[self.img_list.iloc[idx].filename]
+            idx = [self.img_list.iloc[idx].filename]
+            
+        from skimage.transform import resize, rescale
         from skimage.io import imread, imsave
         from skimage import img_as_ubyte
 
