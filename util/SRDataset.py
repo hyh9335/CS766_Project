@@ -73,11 +73,24 @@ class SRDataset(Dataset):
     def __len__(self):
         return len(self.img_list)
 
+    def show(self,idx,width = 512, height = 512):
+        from PIL import Image
+        img_path = [os.path.join(self.img_dir, img_type,
+                                        self.img_list.iloc[idx].filename) for img_type in self.img_type]
+        img_list = [Image.open(path).resize((width, height), Image.BILINEAR) for path in img_path]
+        result = Image.new(img_list[0].mode, (width * len(img_list), height))
+        for i, im in enumerate(img_list):
+            result.paste(im, box=(i * width, 0))
+        result.save(os.path.join(self.img_dir, self.img_list.iloc[idx].filename))
+
+
+
     def generate_image(self, img_type, idx='all', model=None):
         """
             Generate the images.
             img_type: can be "edge", "hr", "lr2x", "lr4x", "lr8x","edge_lr2x","edge_lr4x","edge_lr8x"
                       can also be "pred_edge_lr2x","pred_edge_lr4x","pred_edge_lr8x"
+                      can also be "sr_bicubic_2x", "edge_sr_bicubic_2x", etc
             Edge can only be generated if the image with corresponding resolution exists
 
         """
@@ -91,6 +104,30 @@ class SRDataset(Dataset):
         from skimage import img_as_ubyte
 
         size = 512
+
+        if img_type.startswith("sr_bicubic"):
+            if img_type == "sr_bicubic_2x":
+                downscale, img_src = 2, "lr2x"
+            elif img_type == "sr_bicubic_4x":
+                downscale, img_src = 4, "lr4x"
+            elif img_type == "sr_bicubic_8x":
+                downscale, img_src = 8, "lr8x"
+            else:
+                raise NotImplementedError
+
+            os.makedirs(os.path.join(self.img_dir, img_type), exist_ok=True)
+            for img_name in idx:
+                img_path = os.path.join(self.img_dir, img_src,  img_name)
+                img = imread(img_path)
+
+                if img.shape != (size, size, 3):
+                    img = resize(img, (size, size), anti_aliasing=True, order=3)
+
+                img = img_as_ubyte(img)
+                sr_path = os.path.join(self.img_dir, img_type, img_name)
+                imsave(sr_path, img)
+
+
         if img_type.startswith("lr"):
             if img_type == "lr2x":
                 downscale = 2
@@ -122,6 +159,8 @@ class SRDataset(Dataset):
                 downscale, edge_src = 4, "lr4x"
             elif img_type.find("lr8x")+1:
                 downscale, edge_src = 8, "lr8x"
+            elif img_type.find("sr_bicubic")+1:
+                edge_src = img_type[5:]
             else:
                 raise NotImplementedError
 
