@@ -103,7 +103,7 @@ class SRDataset(Dataset):
             edge_path = os.path.join(self.img_dir, 'canny_edge', str(tensigma),img_name)
             imsave(edge_path, edge_img)
 
-    def generate_image(self, img_type, idx='all', model=None):
+    def generate_image(self, img_type, idx='all', model=None , no_single_point=True):
         """
             Generate the images.
             img_type: can be "edge", "hr", "lr2x", "lr4x", "lr8x","edge_lr2x","edge_lr4x","edge_lr8x"
@@ -234,6 +234,11 @@ class SRDataset(Dataset):
                 pred_edge=model(lr_img.unsqueeze_(0),lr_edge.unsqueeze_(0))
                 outputs = (pred_edge > self.threshold)
 
+                if no_single_point == True:
+                    filters = torch.ones(1, 1, 3, 3).to(device)
+                    nearby = torch.nn.functional.conv2d(outputs.float(), filters.float(), padding=1)
+                    nearby=(nearby>torch.tensor(1.5))
+                    outputs = outputs & nearby
                 edge_path = os.path.join(self.img_dir, img_type, img_name)
                 imsave_tensor(outputs[0,:,:,:], edge_path)
 
