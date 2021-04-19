@@ -42,6 +42,8 @@ class SRDataset(Dataset):
                                     names=["filename"])
         self.img_type = img_type
         self.mode = ImageReadMode
+        self.threshold = 0.5
+        
 
     def __getitem__(self, idx):
         if type(self.img_type) is list:
@@ -83,7 +85,23 @@ class SRDataset(Dataset):
             result.paste(im, box=(i * width, 0))
         result.save(os.path.join(self.img_dir, self.img_list.iloc[idx].filename))
 
+    def generate_edge(self, edge_src, idx, tensigma=20):
+        from skimage.feature import canny
+        from skimage.color import rgb2gray
+        from skimage.io import imread, imsave
+        from skimage import img_as_ubyte
 
+        idx = [self.img_list.iloc[idx].filename]
+        os.makedirs(os.path.join(self.img_dir, 'canny_edge', str(tensigma)), exist_ok=True)
+        
+        for img_name in idx:
+            img_path = os.path.join(self.img_dir, edge_src, img_name)
+            img = imread(img_path)
+
+            edge_img = canny(rgb2gray(img), sigma=tensigma/10)
+            edge_img = img_as_ubyte(edge_img)
+            edge_path = os.path.join(self.img_dir, 'canny_edge', str(tensigma),img_name)
+            imsave(edge_path, edge_img)
 
     def generate_image(self, img_type, idx='all', model=None):
         """
@@ -214,8 +232,10 @@ class SRDataset(Dataset):
                 lr_edge = (read_image(img_path).float()/255).to(device)
                 
                 pred_edge=model(lr_img.unsqueeze_(0),lr_edge.unsqueeze_(0))
+                outputs = (pred_edge > self.threshold)
+
                 edge_path = os.path.join(self.img_dir, img_type, img_name)
-                imsave_tensor(pred_edge[0,:,:,:], edge_path)
+                imsave_tensor(outputs[0,:,:,:], edge_path)
 
 def imsave_tensor(imgtensor,path):
     """
