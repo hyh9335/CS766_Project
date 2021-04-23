@@ -7,6 +7,7 @@ from torch import optim
 from networks import DCGANGenerator, PatchGANDiscriminator
 from loss import AdversarialLoss, StyleContentLoss
 import numpy as np
+import os
 
 
 class EdgeModel(nn.Module):
@@ -210,24 +211,26 @@ class SRModel(nn.Module):
         gen_loss += gen_content_loss
         gen_loss += gen_style_loss
 
+        '''
         # using ground true, process outputs from updated discriminator
         dis_input_real = hr_images
         dis_real, dis_real_feat = self.discriminator(dis_input_real)  
-        
+    
         gen_fm_loss = 0 
         for i in range(len(dis_real_feat)):
             gen_fm_loss += self.l1_loss(gen_fake_feat[i], dis_real_feat[i].detach())
         gen_fm_loss = gen_fm_loss * self.config.FM_LOSS_WEIGHT
         gen_loss += gen_fm_loss
+        '''
 
         # create logs
         logs = [
             ("l_gen", gen_gan_loss.item()),
             ("l_l1", gen_l1_loss.item()),
             ("l_content", gen_content_loss.item()),
-            ("l_style", gen_style_loss.item()),
-            ("l_fm", gen_fm_loss.item())
-        ]
+            ("l_style", gen_style_loss.item())]
+           # ("l_fm", gen_fm_loss.item())
+        
 
         logs = dict(logs)
 
@@ -254,7 +257,51 @@ class SRModel(nn.Module):
 
 
     def forward(self, lr_images, hr_edges):
-        hr_images = F.conv_transpose2d(lr_images, self.scale_kernel, stride=2, groups=3)
+        hr_images = F.conv_transpose2d(lr_images, self.scale_kernel, stride=self.config.SCALE, groups=3)
         inputs = torch.cat((hr_images, hr_edges), dim=1)
         outputs = self.generator(inputs)
+        return outputs
+
+
+class FullModel(nn.Module):
+    def __init__(self, config, load=True):
+        super().__init__()
+
+        self.config = config
+
+        self.edge_model = EdgeModel(config)
+        self.sr_model = SRModel(config)
+
+        scale = config.SCALE
+
+        if load:
+            edge_gen_path = os.path.join(*config.MODEL_PATH, "-".join(config.DATAPATH) + "_{0}x_".format(scale) 
+                + "edge_gen_weights_path.pth")
+            edge_disc_path = os.path.join(*config.MODEL_PATH, "-".join(config.DATAPATH) + "_{0}x_".format(scale)
+                + "edge_disc_weights_path.pth")
+
+            sr_gen_path = os.path.join(*config.MODEL_PATH, "-".join(config.DATAPATH) + "_{0}x_".format(scale) 
+                + "sr_gen_weights_path.pth")
+            sr_disc_path = os.path.join(*config.MODEL_PATH, "-".join(config.DATAPATH) + "_{0}x_".format(scale)
+                + "sr_disc_weights_path.pth")
+
+            try:
+                data = torch.load(sr_gen_path)
+                self.sr_model.generator.load_state_dict(data['generator'])
+                data = torch.load(sr_disc_path)
+                self.sr_model.discriminator.load_state_dict(data['discriminator'])
+
+                data = torch.load(edge_gen_path)
+                self.edge_model.generator.load_state_dict(data['generator'])
+                data = torch.load(edge_disc_path)
+                self.edge_model.discriminator.load_state_dict(data['discriminator'])
+
+            except Exception:
+                # cannot read checkpoint, reraise the exception
+                print("Cannot find the SR model!")
+                raise
+
+    def forward(self, lr_images, lr_edges):
+        hr_edges = self.edge_model(lr_images, lr_edges)
+        outputs = self.sr_model(lr_images, hr_edges)
         return outputs

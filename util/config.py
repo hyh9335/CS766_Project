@@ -1,5 +1,5 @@
 import os
-import yaml
+#import yaml
 
 DEFAULT_CONFIG = {
     'DATAPATH': ['dataset','Set14'],  # directory of dataset in the list form

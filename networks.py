@@ -46,8 +46,8 @@ class ResidualBlock(nn.Module):
             nn.InstanceNorm2d(channels),
             nn.ReLU(True),
             Conv2d(channels, channels, 3,
-                 dilation=dilation,
-                 padding=dilation, padding_mode='reflect'
+                 dilation=1,
+                 padding=1, padding_mode='reflect'
                  ),
         )
 

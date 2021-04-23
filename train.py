@@ -40,6 +40,8 @@ def train(model_type, config):
         train_edge(config)
     elif model_type == 'sr':
         train_sr(config)
+    elif model_type == 'generate_edge':
+        generate_edges(config)
     elif model_type == 'both':
         train_edge(config)
         generate_edges(config)
@@ -49,12 +51,15 @@ def train(model_type, config):
     
 
 def generate_edges(config):
-    edge_gen_path = os.path.join(*config.MODEL_PATH, "-".join(config.DATAPATH) + "_edge_gen_weights_path.pth")
-    edge_disc_path = os.path.join(*config.MODEL_PATH, "-".join(config.DATAPATH) + "_edge_disc_weights_path.pth")
+    scale = config.SCALE
+    edge_gen_path = os.path.join(*config.MODEL_PATH, "-".join(config.DATAPATH) + "_{0}x_".format(scale) 
+        + "edge_gen_weights_path.pth")
+    edge_disc_path = os.path.join(*config.MODEL_PATH, "-".join(config.DATAPATH) + "_{0}x_".format(scale) 
+        + "edge_disc_weights_path.pth")
 
     model = EdgeModel(config).cuda()
 
-    scale = config.SCALE
+
 
     data = torch.load(edge_gen_path)
     model.generator.load_state_dict(data['generator'])
@@ -74,24 +79,26 @@ def train_edge(config):
     scale = config.SCALE
 
     edge_gen_path = os.path.join(*config.MODEL_PATH, "-".join(config.DATAPATH) + "_{0}x_".format(scale) 
-        + "_edge_gen_weights_path.pth")
+        + "edge_gen_weights_path.pth")
     edge_disc_path = os.path.join(*config.MODEL_PATH, "-".join(config.DATAPATH) + "_{0}x_".format(scale) 
-        + "_edge_disc_weights_path.pth")
+        + "edge_disc_weights_path.pth")
 
 
     try:
-        data = torch.load(sr_gen_path)
+        data = torch.load(edge_gen_path)
         model.generator.load_state_dict(data['generator'])
-        data = torch.load(sr_disc_path)
+        data = torch.load(edge_disc_path)
         model.discriminator.load_state_dict(data['discriminator'])
+        print("Loading checkpoint")
     except Exception:
         # cannot read checkpoint
+        print("cannot read checkpoint")
         pass
 
     model.cuda()
     edgeacc.cuda()
         
-    iterations = 0
+    iterations = 1
     epochs = 10
     data = SRDataset(os.path.join(*config.DATAPATH),
                   ["lr{0}x".format(scale), "hr", "edge_lr{0}x".format(scale), "edge"],
@@ -141,9 +148,9 @@ def train_sr(config):
     scale = config.SCALE
 
     sr_gen_path = os.path.join(*config.MODEL_PATH, "-".join(config.DATAPATH) + "_{0}x_".format(scale) 
-        + "_sr_gen_weights_path.pth")
+        + "sr_gen_weights_path.pth")
     sr_disc_path = os.path.join(*config.MODEL_PATH, "-".join(config.DATAPATH) + "_{0}x_".format(scale)
-        + "_sr_disc_weights_path.pth")
+        + "sr_disc_weights_path.pth")
 
 
     try:
@@ -195,7 +202,7 @@ def train_sr(config):
                     "time cost": time_end - time_start
                 }) 
 
-                with open("-".join(config.DATAPATH) +  + "_{0}x_".format(scale)
+                with open("-".join(config.DATAPATH) + "_{0}x_".format(scale)
                      + "sr_logs.txt", "a", encoding='UTF-8') as f:
                     f.write("\n"+"\t".join(i for i in sorted(logs)))
                     f.write("\n"+"\t".join(str(round(logs[i],5)) for i in sorted(logs)))
