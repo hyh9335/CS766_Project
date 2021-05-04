@@ -246,7 +246,7 @@ class SRModel(nn.Module):
 
         logs = {}
 
-        for _ in range(2):
+        for _ in range(1):
             dis_loss, dlogs = self.dis_step(outputs, lr_images, hr_images, hr_edges)
         gen_loss, glogs = self.gen_step(outputs, lr_images, hr_images, hr_edges)
 
