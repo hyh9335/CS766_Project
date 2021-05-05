@@ -8,7 +8,7 @@
 
 Image super-resolution is the task of generating high-resolution images from low-resolution images. Due to the limitations of some actual scenes, only one low-resolution image is often available. Super-resolution using only one low-resolution image is single-image super-resolution. Since one low-resolution image corresponds to several high-resolution images, super-resolution is an ill-defined problem. Therefore, additional prior knowledge is needed to constrain the recovered high-frequency information. The state-of-the-art methods are based on deep learning. Specifically, it uses the similarity of different images in high-frequency details to obtain the relationship between high-resolution and low-resolution images to guide the reconstruction of high-resolution images.
 
-![Low resolution](2021-05-04-22-29-22.png)$\Rightarrow$![](2021-05-04-22-30-15.png)
+![Low resolution](2021-05-04-22-29-22.png)--->![High resolution](2021-05-04-22-30-15.png)
 
 ### Applications
 
@@ -39,4 +39,4 @@ The superresolution task requires many types of the original images -- a single 
 The source codes is at [CS766_Project](https://github.com/hyh9335/CS766_Project).
 
 ### Result and comparsion
-The super-resolution results of SET14 is in [2x downsampling](pred_full_lr2x) and [4x downsampling](pred_full_lr4x).
+The super-resolution results of SET14 is in [2x downsampling](https://github.com/hyh9335/CS766_Project/tree/gh-pages/pred_full_lr2x) and [4x downsampling](https://github.com/hyh9335/CS766_Project/tree/gh-pages/pred_full_lr4x).
