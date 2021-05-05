@@ -304,3 +304,75 @@ class FullModel(nn.Module):
         hr_edges = self.edge_model(lr_images, lr_edges)
         outputs = self.sr_model(lr_images, hr_edges)
         return outputs
+
+class EdgeCNN(nn.Module):
+    def __init__(self, config):
+        super().__init__()
+        self.config = config
+        # generator input: [rgb(3) + edge(1)]
+        # discriminator input: (rgb(3) + edge(1))
+        generator = DCGANGenerator(use_spectral_norm=True, net_type="edge")
+
+        l1_loss = nn.L1Loss()
+        l2_loss = nn.MSELoss()
+
+        self.add_module('generator', generator)
+
+        self.add_module('l2_loss', l2_loss)
+
+        self.gen_optimizer = optim.Adam(
+            params=generator.parameters(),
+            lr=float(config.LR),                                        
+            betas=(config.BETA1, config.BETA2)                          
+        )
+    def gen_step(self, outputs, lr_images, hr_images, lr_edges, hr_edges):
+        ## Update generator       
+        self.gen_optimizer.zero_grad()
+        gen_loss = 0
+        
+        # process outputs from generator
+        #Use the same output, since generator hasn't been updated yet
+        
+        # process outputs from updated discriminator
+        """
+        We cannot detach these two, because outputs lay behind them
+        """
+
+        #generator gan loss
+
+        # generator feature matching loss                                   #loss=0~-1 if gen_fake=0~1; 
+        # using ground true, process outputs from updated discriminator
+  
+
+
+        gen_loss += self.l2_loss(outputs, hr_edges)
+
+        # create logs
+        logs = {"l_gen": gen_loss.item()}
+
+        #backward and update
+        gen_loss.backward()
+        self.gen_optimizer.step()
+
+        return gen_loss.item(), logs
+        
+    def process(self, lr_images, hr_images, lr_edges, hr_edges):
+
+        # process outputs from generator
+        outputs = self(lr_images, lr_edges)
+
+        logs = {}
+        
+        gen_loss, glogs = self.gen_step(outputs, lr_images, hr_images, lr_edges, hr_edges)
+
+        logs.update(glogs)
+                
+        return outputs, gen_loss, 'dis_loss', logs        
+    
+    
+    def forward(self, lr_images, lr_edges):
+        hr_images = F.interpolate(lr_images, scale_factor=self.config.SCALE)
+        hr_edges = F.interpolate(lr_edges, scale_factor=self.config.SCALE)
+        inputs = torch.cat((hr_images, hr_edges), dim=1)
+        outputs = self.generator(inputs)
+        return outputs

@@ -1,0 +1,34 @@
+{
+    "DATAPATH": ["dataset", "celeba-hq"],  
+    "MODEL_PATH": ["models"],
+    "MODE": 1,                      
+    "MODEL": 1,                     
+    "SCALE": 2,                  
+    "SEED": 10,                     
+    "GPU": [0],                     
+    "DEBUG": 0,                     
+    "VERBOSE": 0,                   
+
+    "LR": 0.0001,                
+    "BETA1": 0.0,                
+    "BETA2": 0.9,                
+    "BATCH_SIZE": 8,                
+    "HR_SIZE": 256,                 
+    "SIGMA": 2,                     
+    "MAX_ITERS": 2e7,               
+    "EDGE_THRESHOLD": 0.5,          
+
+    "L1_LOSS_WEIGHT": 1,            
+    "FM_LOSS_WEIGHT": 10,           
+    "STYLE_LOSS_WEIGHT": 250,       
+    "CONTENT_LOSS_WEIGHT": 0.1,     
+    "ADV_LOSS_WEIGHT1": 0.1,        
+    "ADV_LOSS_WEIGHT2": 1,          
+    "GAN_LOSS": "hinge",         
+
+    "SAVE_INTERVAL": 1000,          
+    "SAMPLE_INTERVAL": 1000,        
+    "SAMPLE_SIZE": 12,              
+    "EVAL_INTERVAL": 0,             
+    "LOG_INTERVAL": 10             
+}
