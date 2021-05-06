@@ -35,7 +35,12 @@ In this project, we proposed a two-stage generative adversarial network (GAN) fo
 
 The superresolution task requires many types of the original images -- a single image needs to be scaled to 512x512 to be processed by the network, and aside from that, it has multiple downscaled version (2x, 4x for example). In edge-informed super resolution, we also need the detected edges of these images, either by Canny or the edge model. To manage images of these many type, and choose the versions of the images we want, we implemented `SRDataset`, a class that can generate, feed images. This improves the performance compared to the authors' version that preprocesses the image during training.
 
-#### Source codes
+#### Model
+
+![](GAN_Gen.png)
+
+The network structure for G1 and G2 are quite similar. We used a simple encoder-decoder convolutional network as the generator. Before fed into the generator, the input is first interpolated to the same size as HR. The encoder part downsamples the interpolated input twice, followed by eight residual blocks with dilated convolutions, and lastly the decoder upsamples back to the HR size giving either predicted SR edge, or predicted SR image. The discriminator downsamples the input twice, followed by another two convolution layers. 
+
 The source codes are at [CS766_Project](https://github.com/hyh9335/CS766_Project).
 
 ### Result and comparsion
@@ -58,27 +63,21 @@ To quantitatively evaluate the performance of our edge generation model, we defi
 
 An edge image with a low recall value fails to capture the edge pixels from the ground truth, while an edge image with a low precision value generates many incorrect edge pixels. 
 
-<table>
 
-<tr>
-<td>
 
 | 4X | Recall | Precision |
 |----|----|----|
 |Optimized Canny|0.529|0.472|
 |Our GAN|0.618|0.552|
 
-</td>
-<td>
+
 
 | 2X | Recall | Precision |
 |----|----|----|
 |Optimized Canny|0.573|0.752|
 |Our GAN|0.701|0.782|
 
-</td>
-</tr>
-</table>
+
 
 We looked at 20 different sigmas for edge detection from bicubic interpolated images, and take out the highest recall and precision as 'optimized Canny'. Compared to the best result that Canny edge detection can achieve from bicubic interpolated image, our GAN model still performs better. 
 
