@@ -27,9 +27,9 @@ In addition to being a research direction in computer vision, super-resolution a
 
 ### Approach
 
-![](Intro.png)
-
 One issue the current super-resolution network has, is that some fine structure cannot be properly recovered. As in the example given above, even the state of art network, ESRGAN may fail in some situations. Most networks may learn to deal with these structure implicitly, but in this project, we are wondering whether explicitly feeding in the structure information, e.g. by providing edge information as addition input, can lead to a better performance. Naturally, the structural information, i.e. edge information in this project, should be generated from low-resolution image as well. 
+
+![](Intro.png)
 
 In this project, we proposed a two-stage generative adversarial network (GAN) for single image super-resolution. The first stage is the high-resolution edge prediction network (G1), which takes in the low-resolution image and edge as the input, outputs the predicted high-resolution edge image. The second stage is the image inpainting network (G2), which takes in the predicted high-resolution edge from G1 and low resolution image, outputs the final super-resolution image.
 
