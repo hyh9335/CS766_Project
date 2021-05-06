@@ -2,6 +2,8 @@
 ## Edge-based Image Super-Resolution
 ##### Group members: Yunhan Hu, Ruohui Wang, Xin Yuan
 
+[The presentation slides](https://github.com/hyh9335/CS766_Project/tree/gh-pages/Final_Presentation.pptx)
+
 
 
 ### Single Image Super-Resolution
