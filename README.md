@@ -1,5 +1,8 @@
 # CS766_Project
 
+## Webpage
+
+[Here](https://hyh9335.github.io/CS766_Project/) to find out more about the project.
 ## Requirements
 
 pytorch >= 1.8.0 with cuda
@@ -24,10 +27,11 @@ scikit-image
             /pred_edge_lr2x/, etc. -- predicted edges
             /pred_full_lr2x/, etc. -- the SR images
 
-            Note: Some images should be generated before use.
+            Note: Some images should be generated before use. For example, to train only the SR model, the predicted edge images(pred_edge_lr2x, etc.) should be generated beforehand.
         Each line in files.csv correspond to a file in `img/`
 
 2. Specify the specs: the path to the data, the path of the trained model etc.
     * Refering to config.json for more information.
+
 3. Run `python3 main.py [config file name]`
     * By default config.json is used
