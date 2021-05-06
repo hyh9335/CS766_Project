@@ -56,27 +56,31 @@ After scaling up the frame, the edge recovered by Canny edge detector gives a be
 
 To quantitatively evaluate the performance of our edge generation model, we define two metrics as following:
 
-$$Recall=\frac{\text {# of points correctly predicted}}{\text {# of points on ground Truth}}\ \ \ \ \ \ \ \ \ Precision=\frac{\text {# of points correctly predicted}}{\text {# of points been predicted}}$$
+![](Equations1.png)
 
 An edge image with a low recall value fails to capture the edge pixels from the ground truth, while an edge image with a low precision value generates many incorrect edge pixels. 
 
 <table>
 
-<tr><td>
+<tr>
+<td>
 
 | 4X | Recall | Precision |
 |----|----|----|
 |Optimized Canny|0.529|0.472|
 |Our GAN|0.618|0.552|
 
-</td><td>
+</td>
+<td>
 
 | 2X | Recall | Precision |
 |----|----|----|
 |Optimized Canny|0.573|0.752|
 |Our GAN|0.701|0.782|
 
-</td></tr> </table>
+</td>
+</tr>
+</table>
 
 We looked at 20 different sigmas for edge detection from bicubic interpolated images, and take out the highest recall and precision as 'optimized Canny'. Compared to the best result that Canny edge detection can achieve from bicubic interpolated image, our GAN model still performs better. 
 
