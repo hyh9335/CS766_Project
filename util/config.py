@@ -3,7 +3,7 @@ import os
 
 DEFAULT_CONFIG = {
     'DATAPATH': ['dataset','Set14'],  # directory of dataset in the list form
-    'MODEL_PATH': ['models'],
+    'MODEL_PATH': ['models'],       # directory of the trained model
     
     'MODE': 1,                      # 1: train, 2: test, 3: eval
     'MODEL': 1,                     # 1: edge model, 2: SR model, 3: SR model with edge enhancer

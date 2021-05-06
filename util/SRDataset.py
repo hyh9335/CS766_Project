@@ -10,7 +10,7 @@ class SRDataset(Dataset):
         SRDataset: data set for loading images in a single directory
             with no labels
 
-        An EdgeDataset is stored as a directory that has the following
+        An SRDataset is stored as a directory that has the following
             components:
 
             /files.csv -- contains a list of file names, without directory path
